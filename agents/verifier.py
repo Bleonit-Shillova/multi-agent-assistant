@@ -147,7 +147,7 @@ def run_verifier(state: AgentState) -> dict:
     # If verification failed, we might need to modify the final output
     final_output = draft
     if not passed and issues:
-        final_output = f"""⚠️ VERIFICATION WARNINGS ⚠️
+        final_output = f""" VERIFICATION WARNINGS 
 The following issues were found:
 {chr(10).join(f'• {issue}' for issue in issues)}
 

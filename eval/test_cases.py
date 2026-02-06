@@ -111,11 +111,11 @@ def run_evaluation():
         try:
             result = run_assistant(test['input'])
             
-            print("\n📄 Final Output (truncated):")
+            print("\n Final Output (truncated):")
             output = result.get('final_output', result.get('draft', 'No output'))
             print(output[:500] + "..." if len(output) > 500 else output)
             
-            print("\n✅ Expected Behaviors:")
+            print("\n Expected Behaviors:")
             for behavior in test['expected_behavior']:
                 print(f"  • {behavior}")
             
@@ -129,7 +129,7 @@ def run_evaluation():
             })
             
         except Exception as e:
-            print(f"❌ ERROR: {str(e)}")
+            print(f" ERROR: {str(e)}")
             results.append({
                 "test_id": test['id'],
                 "type": test['type'],

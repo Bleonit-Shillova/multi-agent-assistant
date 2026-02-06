@@ -22,7 +22,7 @@ st.set_page_config(
 )
 
 # Title and description
-st.title("🤖 Multi-Agent Research Assistant")
+st.title("Multi-Agent Research Assistant")
 st.markdown("""
 This assistant uses multiple AI agents to answer your questions based on uploaded documents:
 
@@ -36,7 +36,7 @@ This assistant uses multiple AI agents to answer your questions based on uploade
 
 # Sidebar for document management
 with st.sidebar:
-    st.header("📁 Document Management")
+    st.header("Document Management")
     
     # Check for documents
     data_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data")
@@ -52,14 +52,14 @@ with st.sidebar:
         st.warning("Data folder not found.")
     
     # Rebuild index button
-    if st.button("🔄 Rebuild Document Index"):
+    if st.button("Rebuild Document Index"):
         with st.spinner("Rebuilding index..."):
             loader = DocumentLoader(data_directory=data_path)
             loader.create_vector_store()
             st.success("Index rebuilt!")
     
     st.markdown("---")
-    st.header("📝 Example Tasks")
+    st.header(" Example Tasks")
     st.markdown("""
     Try these example requests:
     
@@ -70,7 +70,7 @@ with st.sidebar:
     """)
 
 # Main input area
-st.header("💬 Ask a Question")
+st.header(" Ask a Question")
 
 # User input
 user_input = st.text_area(
@@ -80,7 +80,7 @@ user_input = st.text_area(
 )
 
 # Run button
-if st.button("🚀 Run Assistant", type="primary"):
+if st.button(" Run Assistant", type="primary"):
     if not user_input.strip():
         st.error("Please enter a request.")
     else:
@@ -88,7 +88,7 @@ if st.button("🚀 Run Assistant", type="primary"):
         col1, col2 = st.columns([2, 1])
         
         with col1:
-            st.header("📄 Final Output")
+            st.header(" Final Output")
             
             with st.spinner("Running multi-agent workflow..."):
                 try:
@@ -106,9 +106,9 @@ if st.button("🚀 Run Assistant", type="primary"):
                     # Display verification status
                     if result.get("verification_passed") is not None:
                         if result["verification_passed"]:
-                            st.success("✅ Verification: PASSED")
+                            st.success(" Verification: PASSED")
                         else:
-                            st.warning("⚠️ Verification: Issues Found")
+                            st.warning(" Verification: Issues Found")
                             if result.get("issues_found"):
                                 with st.expander("View Issues"):
                                     for issue in result["issues_found"]:
@@ -119,7 +119,7 @@ if st.button("🚀 Run Assistant", type="primary"):
                     st.exception(e)
         
         with col2:
-            st.header("🔍 Agent Trace")
+            st.header(" Agent Trace")
             
             # Display trace table
             if result.get("trace"):
@@ -127,14 +127,14 @@ if st.button("🚀 Run Assistant", type="primary"):
                 st.markdown(trace_md)
             
             # Display plan
-            with st.expander("📋 View Plan"):
+            with st.expander(" View Plan"):
                 if result.get("plan"):
                     st.markdown(result["plan"])
                 else:
                     st.write("No plan generated.")
             
             # Display research notes
-            with st.expander("📚 View Research Notes"):
+            with st.expander(" View Research Notes"):
                 if result.get("research_notes"):
                     for i, note in enumerate(result["research_notes"], 1):
                         st.markdown(f"**Note {i}:**")
@@ -145,7 +145,7 @@ if st.button("🚀 Run Assistant", type="primary"):
                     st.write("No research notes.")
             
             # Display verification details
-            with st.expander("✅ View Verification Details"):
+            with st.expander(" View Verification Details"):
                 if result.get("verification_result"):
                     st.markdown(result["verification_result"])
                 else:

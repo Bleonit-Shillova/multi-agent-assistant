@@ -2,7 +2,7 @@
 
 A multi-agent AI system that coordinates specialized agents to answer business questions based on uploaded documents.
 
-## 🎯 Features
+##  Features
 
 - **Multi-Agent Architecture**: Planner → Researcher → Writer → Verifier workflow
 - **Document-Grounded Responses**: All answers cite source documents
@@ -10,7 +10,7 @@ A multi-agent AI system that coordinates specialized agents to answer business q
 - **Transparent Tracing**: See exactly which agent did what
 - **Streamlit Web UI**: Easy-to-use interface
 
-## 🏗️ Architecture
+##  Architecture
 ```
 User Request
      ↓
@@ -33,7 +33,7 @@ User Request
     Final Output
 ```
 
-## 📁 Project Structure
+##  Project Structure
 ```
 multi-agent-assistant/
 ├── app/
@@ -61,7 +61,7 @@ multi-agent-assistant/
 └── README.md
 ```
 
-## 🚀 Setup Instructions
+##  Setup Instructions
 
 ### Prerequisites
 - Python 3.11+
@@ -105,14 +105,14 @@ The app will open in your browser at http://localhost:8501
 python eval/test_cases.py
 ```
 
-## 💡 Example Tasks
+##  Example Tasks
 
 - "Summarize the top 5 risks and propose mitigations"
 - "Create a client update email from the weekly report"
 - "Extract all deadlines and owners into an action list"
 - "Compare two approaches and recommend one with justification"
 
-## 🔒 Safety Features
+##  Safety Features
 
 - **Grounded Responses**: Only uses information from provided documents
 - **Citation Required**: All facts must have source citations
@@ -120,7 +120,7 @@ python eval/test_cases.py
 - **"I Don't Know"**: System admits when information isn't available
 - **Prompt Injection Defense**: Detects suspicious instructions in documents
 
-## 📊 Agent Trace Example
+##  Agent Trace Example
 
 | Step | Agent | Action | Outcome |
 |------|-------|--------|---------|
@@ -129,7 +129,7 @@ python eval/test_cases.py
 | 3 | Writer | Generated draft deliverable | Created 1500 character document |
 | 4 | Verifier | Verified draft accuracy | PASSED - Found 0 issues |
 
-## 🛠️ Technologies Used
+##  Technologies Used
 
 - **LangGraph**: Multi-agent orchestration
 - **LangChain**: AI framework
@@ -137,6 +137,6 @@ python eval/test_cases.py
 - **ChromaDB**: Vector database for document search
 - **Streamlit**: Web interface
 
-## 📝 License
+##  License
 
 MIT License
