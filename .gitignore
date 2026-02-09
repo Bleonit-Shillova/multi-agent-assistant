@@ -208,3 +208,6 @@ __marimo__/
 chroma_db/
 .env
 .env.*
+
+
+.DS_Store

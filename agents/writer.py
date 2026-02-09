@@ -2,104 +2,137 @@
 Writer Agent
 The "writer" that creates the final deliverable based on research.
 """
-
+import re
 from langchain_openai import ChatOpenAI
 from langchain_core.prompts import ChatPromptTemplate
 from agents.config import OPENAI_API_KEY, DEFAULT_MODEL
 from agents.state import AgentState, AgentTrace
 
 
-# Initialize the language model
+# Deterministic writing (no placeholders, no invention)
 llm = ChatOpenAI(
     api_key=OPENAI_API_KEY,
     model=DEFAULT_MODEL,
-    temperature=0.3  # Slightly creative for better writing
+    temperature=0
 )
 
-# The prompt for the Writer Agent
 WRITER_PROMPT = ChatPromptTemplate.from_messages([
     ("system", """You are a Writer Agent in a multi-agent research system.
 
-Your job is to create polished, professional deliverables based on research notes.
+You must produce a final deliverable STRICTLY from the provided research notes.
 
-CRITICAL RULES:
-1. ONLY use information from the provided research notes
-2. ALWAYS include citations in your output [Source: document name]
-3. If research notes say "NOT FOUND", acknowledge the gap in your output
-4. Write in a clear, professional tone
-5. Structure your output appropriately for the requested format
+ABSOLUTE RULES (violating any = FAIL):
+1) Use ONLY facts present in the research notes.
+2) Every factual sentence, bullet, numbered item, or sub-bullet MUST include a citation using EXACTLY this format: [Source: filename].
+   - Always use singular [Source: filename], NEVER [Sources: filename].
+3) Never use placeholder/template text of any kind.
+   - The ONLY square brackets allowed are citations: [Source: filename]
+   - NEVER write [Your Name], [Client], [Company Name], [Date], [Recipient], [Team], or ANY other bracketed placeholder.
+   - For emails: use "Dear Team," or "Hello," as the greeting. End with "Best regards" and NOTHING after it. No name, no signature block.
+4) If a research note says "NOT FOUND IN SOURCES":
+   - You MUST repeat exactly "NOT FOUND IN SOURCES"
+   - You MUST include a citation to the document checked
+     Example: NOT FOUND IN SOURCES. [Source: client_feedback.md]
+5) Do not invent names, dates, metrics, tasks, milestones, owners, or interpretations.
+6) Do NOT add explanations for why something is missing.
+7) Do NOT attempt to satisfy verifier wording — only restate research notes.
 
-For different output types:
-- EMAIL: Professional email format with greeting, body, closing
-- SUMMARY: Executive summary with bullet points and sections
-- ACTION LIST: Clear tasks with owners and deadlines if available
-- COMPARISON: Structured comparison with pros/cons and recommendation
+FORMAT RULES:
+- Extraction / lists: EACH item must end with a citation.
+- Multi-field items: EACH field line must have its own citation.
+- Analysis/comparison: ONLY restate documented facts and derived conclusions explicitly supported by notes.
+- Include a SOURCES section listing unique filenames IF at least one factual claim exists.
+- If the entire output is only NOT FOUND IN SOURCES statements, do NOT include a SOURCES section.
 
-Always end with a SOURCES section listing all documents referenced."""),
-    ("human", """Original Request: {user_input}
+You are not allowed to fix gaps. You are only allowed to report facts.
+"""),
+    ("human", """ORIGINAL REQUEST:
+{user_input}
 
-Plan: {plan}
+PLAN:
+{plan}
 
-Research Notes:
+RESEARCH NOTES (facts you may use):
 {research_notes}
 
-Create the final deliverable based on the plan and research. Include citations.""")
+Write the deliverable now. Do not add anything not present in the research notes.""")
 ])
 
 
 def format_research_notes(notes) -> str:
-    """Format research notes into readable text."""
     if not notes:
-        return "No research notes available."
-    
+        return "NO RESEARCH NOTES PROVIDED."
+
     formatted = []
     for i, note in enumerate(notes, 1):
-        formatted.append(f"""Note {i}:
-- Finding: {note['content']}
-- Source: {note['source']}
-- Relevance: {note['relevance']}""")
-    
+        formatted.append(
+            f"FACT {i}:\n"
+            f"- CONTENT: {note.get('content','')}\n"
+            f"- SOURCE: {note.get('source','')}\n"
+            f"- RELEVANCE: {note.get('relevance','')}"
+        )
     return "\n\n".join(formatted)
 
 
+def _strip_placeholders(text: str) -> str:
+    """
+    Code-level safety net: remove ANY bracketed text that is NOT a valid
+    [Source: ...] citation.  The LLM sometimes ignores prompt rules and
+    still produces [Your Name], [Client], [Date], etc.
+    """
+    def _replace(match):
+        content = match.group(0)
+        # Keep valid citations like [Source: filename.md]
+        if re.match(r"\[\s*Source\s*:", content, re.IGNORECASE):
+            return content
+        # Remove everything else
+        return ""
+
+    result = re.sub(r"\[[^\]]+\]", _replace, text)
+    # Clean up leftover double-spaces and trailing whitespace
+    result = re.sub(r"  +", " ", result)
+    result = re.sub(r" +\n", "\n", result)
+    result = re.sub(r"\n{3,}", "\n\n", result)
+    return result.strip()
+
+
 def run_writer(state: AgentState) -> dict:
-    """
-    Execute the Writer Agent.
-    
-    Creates the final deliverable from research notes.
-    
-    Args:
-        state: Current shared state with research
-        
-    Returns:
-        Updated state with draft
-    """
     user_input = state.get("user_input", "")
     plan = state.get("plan", "")
-    research_notes = state.get("research_notes", [])
+    research_notes = state.get("research_notes", []) or []
     current_step = state.get("current_step", 0)
-    
-    # Format research notes for the prompt
+
     notes_text = format_research_notes(research_notes)
-    
-    # Generate the draft
+
     chain = WRITER_PROMPT | llm
     response = chain.invoke({
         "user_input": user_input,
         "plan": plan,
         "research_notes": notes_text
     })
-    
-    draft = response.content
-    
-    # Create trace entry
+
+    draft = response.content.strip()
+
+    # >>> FIX: strip any placeholder brackets the LLM still produced <<<
+    draft = _strip_placeholders(draft)
+
+    # If output contains ONLY NOT FOUND statements, remove trailing SOURCES section
+    only_not_found = all(
+        "not found in sources" in note.get("content", "").lower()
+        for note in research_notes
+    )
+
+    if only_not_found:
+        draft = re.sub(r"\n*\*\*sources\*\*.*$", "", draft, flags=re.IGNORECASE | re.DOTALL).strip()
+        draft = re.sub(r"\n*SOURCES:.*$", "", draft, flags=re.IGNORECASE | re.DOTALL).strip()
+
     trace_entry = AgentTrace(
         step=current_step + 1,
         agent="Writer",
-        action="Generated draft deliverable",
+        action="Generated grounded draft deliverable",
         outcome=f"Created {len(draft)} character document"
     )
-    
+
     return {
         "draft": draft,
         "trace": [trace_entry],

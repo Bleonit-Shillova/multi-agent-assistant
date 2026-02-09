@@ -50,8 +50,13 @@ multi-agent-assistant/
 │   ├── verifier.py          # Verifier Agent
 │   └── workflow.py          # LangGraph orchestration
 ├── data/
-│   ├── project_report.md    # Sample document
-│   └── weekly_update.md     # Sample document
+│   ├── client_feedback.md       # Client satisfaction & feature requests
+│   ├── competitor_analysis.md   # Competitor comparison report
+│   ├── meeting_notes.md         # Project meeting notes & action items
+│   ├── project_report.md        # Q4 project status report
+│   ├── q1_roadmap.md            # Q1 2025 product roadmap
+│   ├── technical_specs.md       # System architecture & requirements
+│   └── weekly_update.md         # Weekly progress update
 ├── eval/
 │   ├── __init__.py
 │   └── test_cases.py        # Evaluation tests

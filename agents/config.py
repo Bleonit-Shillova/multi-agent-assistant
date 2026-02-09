@@ -16,9 +16,14 @@ OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 if not OPENAI_API_KEY:
     raise ValueError("Please set OPENAI_API_KEY in your .env file")
 
-# Model settings
-DEFAULT_MODEL = "gpt-4-turbo-preview"  # You can also use "gpt-3.5-turbo" for cheaper testing
-EMBEDDING_MODEL = "text-embedding-3-small"  # For document search
+# Model settings 
+DEFAULT_MODEL = os.getenv("DEFAULT_MODEL", "gpt-4-turbo-preview")
+EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL", "text-embedding-3-small")
+
+# Optional: cheaper mode for eval/dev
+FAST_EVAL = os.getenv("FAST_EVAL", "false").lower() == "true"
+if FAST_EVAL:
+    DEFAULT_MODEL = os.getenv("FAST_EVAL_MODEL", "gpt-3.5-turbo")
 
 # Chunk settings for document processing
 CHUNK_SIZE = 1000  # How many characters per chunk
