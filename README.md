@@ -105,10 +105,11 @@ python -m streamlit run app/main.py
 
 The app will open in your browser at http://localhost:8501
 
-### Running Tests
+## Evaluation
+All project requirements are validated using automated tests:
+
 ```bash
 python eval/test_cases.py
-```
 
 ##  Example Tasks
 
@@ -138,7 +139,7 @@ python eval/test_cases.py
 
 - **LangGraph**: Multi-agent orchestration
 - **LangChain**: AI framework
-- **OpenAI GPT-4**: Language model
+- **OpenAI Chat Models (GPT-4 / GPT-3.5)**: Language model
 - **ChromaDB**: Vector database for document search
 - **Streamlit**: Web interface
 
