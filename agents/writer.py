@@ -32,9 +32,10 @@ ABSOLUTE RULES (violating any = FAIL):
 4) If a research note says "NOT FOUND IN SOURCES":
    - You MUST repeat exactly "NOT FOUND IN SOURCES"
    - You MUST include a citation to the document checked
-     Example: NOT FOUND IN SOURCES. [Source: client_feedback.md]
+   - You MUST add ONE short sentence suggesting what type of document or data source might contain this information
+     Example: NOT FOUND IN SOURCES. [Source: client_feedback.md] (This information might be found in a dedicated KPI dashboard or quarterly metrics report.)
 5) Do not invent names, dates, metrics, tasks, milestones, owners, or interpretations.
-6) Do NOT add explanations for why something is missing.
+6) Do NOT add explanations for why something is missing beyond the single suggestion sentence in rule 4.
 7) Do NOT attempt to satisfy verifier wording — only restate research notes.
 
 FORMAT RULES:
