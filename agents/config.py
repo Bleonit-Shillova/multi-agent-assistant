@@ -9,12 +9,19 @@ from dotenv import load_dotenv
 # Load environment variables from .env file
 load_dotenv()
 
-# Get the OpenAI API key from environment
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+# Try Streamlit secrets first (for Streamlit Cloud), then fall back to .env
+try:
+    import streamlit as st
+    OPENAI_API_KEY = st.secrets.get("OPENAI_API_KEY", None)
+except Exception:
+    OPENAI_API_KEY = None
+
+if not OPENAI_API_KEY:
+    OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
 # Check if key exists
 if not OPENAI_API_KEY:
-    raise ValueError("Please set OPENAI_API_KEY in your .env file")
+    raise ValueError("Please set OPENAI_API_KEY in your .env file or Streamlit secrets")
 
 # Model settings 
 DEFAULT_MODEL = os.getenv("DEFAULT_MODEL", "gpt-4-turbo-preview")
